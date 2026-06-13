@@ -4,6 +4,7 @@
 #include<filesystem>
 #include<string>
 #include"sha1.h"
+#include"utils.h"
 
 using namespace std;
 
@@ -38,36 +39,13 @@ int hashObject(fs::path filename){
             return 1;
         }
 
-        string hashBuffer="";
-        char ch;
-        
-        while(file.get(ch)){
-            hashBuffer += ch;
-        }
+        string hashBuffer=getContentsString(file);
 
         file.close();
 
         string hashedStr = sha1(hashBuffer);
 
-        if(!fs::exists(objects / hashedStr.substr(0, 2))){
-            fs::create_directory(objects / hashedStr.substr(0, 2));
-        }
-        
-        if(fs::exists(objects / hashedStr.substr(0, 2) / hashedStr.substr(2, 38))){
-            cout<<"File "<<dir/filename<<" already hashed"<<endl;
-        }else{
-            ofstream objFile(objects / hashedStr.substr(0, 2) / hashedStr.substr(2, 38));
-            if(objFile.is_open()){
-                objFile<<hashBuffer;
-                objFile.close();
-                cout<<"The file "<<dir/filename<<" hashed and stored with the hash :"<<endl;
-                cout<<hashedStr<<endl;
-            }else{
-                cerr<<"Failed to open the hashed file lmaoooo SKILL ISSUE"<<endl<<"File : "<<objects / hashedStr.substr(0, 2) / hashedStr.substr(2, 38)<<endl;
-                objFile.close();
-                return 1;
-            }
-        }
+        createObject(objects, hashedStr, hashBuffer);
 
     }else{
         cerr<< "File "<<dir/filename<<" does not exists"<<endl;
@@ -82,21 +60,8 @@ int catFile(string hash){
         return 1;
     }
     if(fs::exists(objects/hash.substr(0, 2)/hash.substr(2, 38))){
-        ifstream hashFile(objects/hash.substr(0, 2)/hash.substr(2, 38), ios::binary);
-        
-        string content = "";
-
-        if(hashFile.is_open()){
-            char ch;
-            while(hashFile.get(ch)){
-                content+=ch;
-            }
-            hashFile.close();
-        }else{
-            cerr<<"Failed to open the object file for hash "<<hash<<endl;
-            hashFile.close();
-            return 1;
-        }
+                
+        string content = readObject(objects, hash);
 
         cout<<endl<<content<<endl;
 
