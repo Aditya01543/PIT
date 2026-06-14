@@ -57,3 +57,56 @@ string readObject(fs::path objects, string hash){
 
     return content;
 }
+
+int isIndexed(fs::path pitPath, std::string filename){
+    
+    ifstream indexFile(pitPath / "index", ios::binary);
+    int i=0;
+    string line;
+    while(getline(indexFile, line)){
+        int len = line.length();
+        if(len > 41){
+            if(line.substr(41, len-41) == filename){
+                indexFile.close();
+                return i;
+            }
+        }
+        i++;
+    }
+    indexFile.close();
+    
+    return -1;
+}
+
+int indexThisFile(fs::path pitPath, string filename, string hash){
+    
+    int i = isIndexed(pitPath, filename);
+
+    if(i == -1){
+        ofstream indexFile(pitPath / "index", ios::app | ios::binary);
+        indexFile<<hash<<" "<<filename<<endl;
+        indexFile.close();
+    }else{
+        int j=0;
+        ifstream indexFile(pitPath / "index", ios::binary);
+        ofstream tempFile(pitPath / "temp", ios::binary);
+
+        string line;
+        while(getline(indexFile, line)){
+            if(i==j){
+                tempFile<<hash<<" "<<filename<<endl;
+            }else{
+                tempFile<<line<<endl;
+            }
+            j++;
+        }
+
+        indexFile.close();
+        tempFile.close();
+
+        fs::remove(pitPath/"index");
+        fs::rename(pitPath/"temp", pitPath/"index");
+    }
+    
+    return 0;
+}

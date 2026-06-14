@@ -22,7 +22,8 @@ void init(){
             fs::create_directories(dir / ".pit" / "objects");
         }
         if(!fs::exists(dir / ".pit" / "index")){
-            fs::create_directories(dir / ".pit" / "index");
+            ofstream indexFile(dir / ".pit" / "index");
+            indexFile.close();
         }
     }else{
         cout << "Directory already exists!" << endl;
@@ -73,9 +74,41 @@ int catFile(string hash){
     return 0;
 }
 
+int addFile(fs::path filename){
+    if(fs::exists(dir / filename)){
+
+        ifstream file(dir / filename, ios::binary);
+
+        if(!file.is_open()){
+            cerr<<"Failed to open the file "<<dir/filename<<endl;
+            return 1;
+        }
+
+        string hashBuffer = getContentsString(file);
+
+        file.close();
+
+        string hashedStr = sha1(hashBuffer);
+
+        if(createObject(objects, hashedStr, hashBuffer) == 0){
+            if(!fs::exists(dir/".pit"/"index")){
+                ofstream indexFile(dir/".pit"/"index");
+                indexFile.close();
+            }
+            indexThisFile(dir/".pit", (dir/filename).string(), hashedStr);
+        }
+        
+    }else{
+        cerr<<"The file "<<dir/filename<<" does not exists.";
+        return 1;
+    }
+
+    return 0;
+}
+
 int main(int argc, char* argv[]){
     init();
     hashObject("README.md");
-    catFile("bf8e7f16dde9b13469f492478fc9990257f6fd58");
+    addFile("README.md");
     return 0;
 }
