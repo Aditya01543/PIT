@@ -106,9 +106,26 @@ int addFile(fs::path filename){
     return 0;
 }
 
+int writeTree(){
+    if(!fs::exists(dir/".pit"/"index")){
+        cerr<<"BRUH THE INDEX FILE AIN'T THERE?????"<<endl;
+        return -1;
+    }
+
+    ifstream indexFile(dir/".pit"/"index");
+    string tree = getContentsString(indexFile);
+    string hashed = sha1(tree);
+
+    if(createObject(objects, hashed, tree) == -1)return -1;
+    cout<<hashed;
+    return 0;
+}
+
 int main(int argc, char* argv[]){
     init();
     hashObject("README.md");
     addFile("README.md");
+    addFile("rat-1.py");
+    writeTree();
     return 0;
 }
