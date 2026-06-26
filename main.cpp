@@ -10,7 +10,8 @@ using namespace std;
 
 namespace fs = std::filesystem;
 
-fs::path dir = "C:/Aditya/Projects/lab-rat-folder";
+// fs::path dir = "C:/Aditya/Projects/lab-rat-folder";
+fs::path dir;
 fs::path objects = dir / ".pit" / "objects";
 fs::path heads = dir / ".pit" / "refs" / "heads";
 
@@ -173,11 +174,71 @@ int commit(string message){
 }
 
 int main(int argc, char* argv[]){
-    init();
-    hashObject("README.md");
-    addFile("README.md");
-    addFile("rat-1.py");
-    writeTree();
-    commit("Commit 1");
+    // init();
+    // hashObject("README.md");
+    // addFile("README.md");
+    // addFile("rat-1.py");
+    // writeTree();
+    // commit("Commit 1");
+
+    dir = std::filesystem::current_path();
+
+    if(argc<2){
+        cout<<"Invalid command"<<endl;
+        return 0;
+    }else{
+        if(strcmp(argv[1], "init") == 0){
+
+            if(argc != 2){
+                cout<<"Too many parameters! Invalid command!!"<<endl;
+            }else{
+                init();
+            }
+
+        }else if(strcmp(argv[1], "hash-object") == 0){
+
+            if(argc != 3){
+                cout<<"Too many parameters! Invalid command!!"<<endl;
+            }else{
+                hashObject(argv[2]);
+            }
+            
+        }else if(strcmp(argv[1], "cat-file") == 0){
+
+            if(argc != 3){
+                cout<<"Too many parameters! Invalid command!!"<<endl;
+            }else{
+                catFile(argv[2]);
+            }
+
+        }else if(strcmp(argv[1], "add") == 0){
+
+            if(argc != 3){
+                cout<<"Too many parameters! Invalid command!!"<<endl;
+            }else{
+                addFile(argv[2]);
+            }
+
+        }else if(strcmp(argv[1], "write-tree") == 0){
+
+            if(argc != 2){
+                cout<<"Too many parameters! Invalid command!!"<<endl;
+            }else{
+                writeTree();
+            }
+
+        }else if(strcmp(argv[1], "commit") == 0){
+
+            if(argc != 4){
+                cout<<"Too many parameters! Invalid command!!"<<endl;
+            }else{
+                commit(argv[3]);
+            }
+
+        }else{
+            cout<<"No such command"<<endl;
+        }
+    }
+
     return 0;
 }
